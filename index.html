@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="DecodeLabs Project 1 - Modern responsive web application">
+  <title>DecodeLabs | Project 1</title>
+  
+  <!-- Google Fonts - display=swap prevents render-blocking -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Roboto:wght@400;600&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ========================================
+       SECTION: RESET
+       Normalize browser defaults
+       ======================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    img, picture, video, canvas, svg {
+      display: block;
+      max-width: 100%;
+    }
+
+    input, button, textarea, select {
+      font: inherit;
+    }
+
+    p, h1, h2, h3, h4, h5, h6 {
+      overflow-wrap: break-word;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    ul, ol {
+      list-style: none;
+    }
+
+    /* ========================================
+       SECTION: VARIABLES
+       Design system tokens
+       ======================================== */
+    :root {
+      /* Color Palette - 2025 Palette */
+      --color-primary: #A8856F;
+      --color-primary-dark: #8B6E5A;
+      --color-accent: #A0D4E0;
+      --color-accent-dark: #7FBFCC;
+      --color-background: #F2F0EA;
+      --color-surface: #FFFFFF;
+      --color-text: #2D2A26;
+      --color-text-muted: #5C574F;
+      --color-border: #E0DDD6;
+      
+      /* Typography */
+      --font-heading: 'Montserrat', sans-serif;
+      --font-body: 'Roboto', sans-serif;
+      --font-weight-regular: 400;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      
+      /* Fluid heading sizes using clamp() */
+      --font-size-h1: clamp(1.75rem, 4vw, 2.5rem);
+      --font-size-h2: clamp(1.5rem, 3vw, 2rem);
+      --font-size-h3: clamp(1.25rem, 2.5vw, 1.5rem);
+      --font-size-body: 1rem;
+      --font-size-small: 0.875rem;
+      
+      /* Spacing */
+      --space-xs: 0.5rem;
+      --space-sm: 1rem;
+      --space-md: 1.5rem;
+      --space-lg: 2rem;
+      --space-xl: 3rem;
+      --space-2xl: 4rem;
+      
+      /* Layout */
+      --navbar-height: 50px;
+      --container-max: 1280px;
+      --sidebar-width: 300px;
+      --card-gap: 1.5rem;
+      
+      /* Transitions */
+      --transition-fast: 150ms ease;
+      --transition-normal: 300ms ease;
+      --transition-slow: 500ms ease;
+      
+      /* Shadows */
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+      --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.12);
+      
+      /* Border radius */
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+    }
+
+    /* ========================================
+       SECTION: BASE
+       Base element styles
+       ======================================== */
+    body {
+      font-family: var(--font-body);
+      font-weight: var(--font-weight-regular);
+      font-size: var(--font-size-body);
+      color: var(--color-text);
+      background-color: var(--color-background);
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: var(--font-heading);
+      font-weight: var(--font-weight-bold);
+      line-height: 1.2;
+      color: var(--color-text);
+    }
+
+    h1 { font-size: var(--font-size-h1); }
+    h2 { font-size: var(--font-size-h2); }
+    h3 { font-size: var(--font-size-h3); }
+
+    p {
+      color: var(--color-text-muted);
+    }
+
+    /* ========================================
+       SECTION: ACCESSIBILITY
+       Focus styles and skip link
+       ======================================== */
+    .skip-link {
+      position: absolute;
+      top: -100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--color-primary);
+      color: white;
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--radius-md);
+      z-index: 9999;
+      transition: top var(--transition-fast);
+    }
+
+    .skip-link:focus {
+      top: var(--space-sm);
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+
+    /* ========================================
+       SECTION: LAYOUT
+       Page structure
+       ======================================== */
+    .container {
+      width: 100%;
+      max-width: var(--container-max);
+      margin: 0 auto;
+      padding: 0 var(--space-sm);
+    }
+
+    /* ========================================
+       SECTION: COMPONENTS - NAVBAR
+       Fixed top navigation bar
+       ======================================== */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--navbar-height);
+      background-color: var(--color-surface);
+      box-shadow: var(--shadow-sm);
+      z-index: 1000;
+    }
+
+    .navbar__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 100%;
+      gap: var(--space-md);
+    }
+
+    .navbar__logo {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-family: var(--font-heading);
+      font-weight: var(--font-weight-bold);
+      font-size: 1.25rem;
+      color: var(--color-primary);
+    }
+
+    .navbar__logo-icon {
+      width: 28px;
+      height: 28px;
+      background-color: var(--color-primary);
+      border-radius: var(--radius-sm);
+    }
+
+    .navbar__nav {
+      display: none;
+      flex-direction: column;
+      position: absolute;
+      top: var(--navbar-height);
+      left: 0;
+      right: 0;
+      background-color: var(--color-surface);
+      box-shadow: var(--shadow-md);
+      padding: var(--space-md);
+    }
+
+    .navbar__nav.is-open {
+      display: flex;
+    }
+
+    .navbar__links {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .navbar__link {
+      font-family: var(--font-body);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text);
+      padding: var(--space-xs) 0;
+      transition: color var(--transition-fast);
+      position: relative;
+    }
+
+    .navbar__link::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: var(--color-primary);
+      transition: width var(--transition-normal);
+    }
+
+    .navbar__link:hover,
+    .navbar__link.is-active {
+      color: var(--color-primary);
+    }
+
+    .navbar__link.is-active::after {
+      width: 100%;
+    }
+
+    .navbar__cta {
+      margin-top: var(--space-sm);
+    }
+
+    .navbar__toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: var(--space-xs);
+    }
+
+    .navbar__hamburger {
+      width: 24px;
+      height: 2px;
+      background-color: var(--color-text);
+      position: relative;
+      transition: background-color var(--transition-fast);
+    }
+
+    .navbar__hamburger::before,
+    .navbar__hamburger::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: var(--color-text);
+      transition: transform var(--transition-normal);
+    }
+
+    .navbar__hamburger::before { top: -8px; }
+    .navbar__hamburger::after { bottom: -8px; }
+
+    .navbar__toggle[aria-expanded="true"] .navbar__hamburger {
+      background-color: transparent;
+    }
+
+    .navbar__toggle[aria-expanded="true"] .navbar__hamburger::before {
+      transform: translateY(8px) rotate(45deg);
+      background-color: var(--color-primary);
+    }
+
+    .navbar__toggle[aria-expanded="true"] .navbar__hamburger::after {
+      transform: translateY(-8px) rotate(-45deg);
+      background-color: var(--color-primary);
+    }
+
+    /* ========================================
+       SECTION: COMPONENTS - BUTTON
+       Reusable button styles
+       ======================================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-xs) var(--space-md);
+      font-family: var(--font-body);
+      font-weight: var(--font-weight-semibold);
+      font-size: var(--font-size-small);
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .btn--primary {
+      background-color: var(--color-primary);
+      color: white;
+    }
+
+    .btn--primary:hover {
+      background-color: var(--color-primary-dark);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn--secondary {
+      background-color: var(--color-accent);
+      color: var(--color-text);
+    }
+
+    .btn--secondary:hover {
+      background-color: var(--color-accent-dark);
+    }
+
+    .btn--outline {
+      background-color: transparent;
+      border: 2px solid var(--color-primary);
+      color: var(--color-primary);
+    }
+
+    .btn--outline:hover {
+      background-color: var(--color-primary);
+      color: white;
+    }
+
+    /* ========================================
+       SECTION: COMPONENTS - HERO
+       Hero section with headline
+       ======================================== */
+    .hero {
+      padding-top: calc(var(--navbar-height) + var(--space-xl));
+      padding-bottom: var(--space-xl);
+      background: linear-gradient(135deg, var(--color-background) 0%, var(--color-surface) 100%);
+      min-height: 360px;
+      display: flex;
+      align-items: center;
+    }
+
+    .hero__content {
+      max-width: 600px;
+    }
+
+    .hero__title {
+      margin-bottom: var(--space-md);
+    }
+
+    .hero__subtitle {
+      font-size: var(--font-size-body);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-lg);
+      line-height: 1.7;
+    }
+
+    .hero__actions {
+      display: flex;
+      gap: var(--space-sm);
+      flex-wrap: wrap;
+    }
+
+    /* ========================================
+       SECTION: COMPONENTS - MAIN CONTENT
+       Content grid with cards and sidebar
+       ======================================== */
+    .main-content {
+      padding: var(--space-xl) 0;
+    }
+
+    .content-wrapper {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-lg);
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--card-gap);
+    }
+
+    .card {
+      background-color: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+      transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .card__icon {
+      width: 48px;
+      height: 48px;
+      background-color: var(--color-primary);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card__icon svg {
+      width: 24px;
+      height: 24px;
+      fill: white;
+    }
+
+    .card__title {
+      margin-bottom: var(--space-sm);
+    }
+
+    .card__body {
+      font-size: var(--font-size-small);
+      line-height: 1.7;
+    }
+
+    /* ========================================
+       SECTION: COMPONENTS - SIDEBAR
+       Side panel for supplementary content
+       ======================================== */
+    .sidebar {
+      display: none;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    .sidebar__widget {
+      background-color: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .sidebar__title {
+      font-size: 1.125rem;
+      margin-bottom: var(--space-sm);
+      color: var(--color-primary);
+    }
+
+    .sidebar__text {
+      font-size: var(--font-size-small);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-md);
+    }
+
+    /* ========================================
+       SECTION: COMPONENTS - TABS
+       Interactive tab switcher
+       ======================================== */
+    .tabs {
+      margin-top: var(--space-md);
+    }
+
+    .tabs__nav {
+      display: flex;
+      gap: var(--space-xs);
+      margin-bottom: var(--space-md);
+      flex-wrap: wrap;
+    }
+
+    .tabs__btn {
+      padding: var(--space-xs) var(--space-sm);
+      background-color: var(--color-background);
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-weight: var(--font-weight-semibold);
+      font-size: var(--font-size-small);
+      color: var(--color-text-muted);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .tabs__btn:hover {
+      background-color: var(--color-border);
+    }
+
+    .tabs__btn.is-active {
+      background-color: var(--color-primary);
+      color: white;
+    }
+
+    .tabs__content {
+      display: none;
+    }
+
+    .tabs__content.is-active {
+      display: block;
+      animation: fadeIn var(--transition-normal) ease;
+    }
+
+    /* ========================================
+       SECTION: COMPONENTS - ACCORDION
+       Expandable accordion component
+       ======================================== */
+    .accordion {
+      margin-top: var(--space-md);
+    }
+
+    .accordion__item {
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .accordion__btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: var(--space-md) 0;
+      background: none;
+      border: none;
+      font-family: var(--font-body);
+      font-weight: var(--font-weight-semibold);
+      font-size: var(--font-size-small);
+      color: var(--color-text);
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .accordion__btn:hover {
+      color: var(--color-primary);
+    }
+
+    .accordion__icon {
+      width: 20px;
+      height: 20px;
+      transition: transform var(--transition-normal);
+    }
+
+    .accordion__item.is-open .accordion__icon {
+      transform: rotate(180deg);
+    }
+
+    .accordion__body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height var(--transition-normal);
+    }
+
+    .accordion__item.is-open .accordion__body {
+      max-height: 200px;
+    }
+
+    .accordion__content {
+      padding-bottom: var(--space-md);
+      font-size: var(--font-size-small);
+      color: var(--color-text-muted);
+    }
+
+    /* ========================================
+       SECTION: COMPONENTS - FORM
+       Form input styles
+       ======================================== */
+    .form-group {
+      margin-bottom: var(--space-md);
+    }
+
+    .form-label {
+      display: block;
+      font-weight: var(--font-weight-semibold);
+      font-size: var(--font-size-small);
+      color: var(--color-text);
+      margin-bottom: var(--space-xs);
+    }
+
+    .form-input {
+      width: 100%;
+      padding: var(--space-sm);
+      font-family: var(--font-body);
+      font-size: var(--font-size-body);
+      color: var(--color-text);
+      background-color: var(--color-background);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(168, 133, 111, 0.2);
+    }
+
+    .form-input::placeholder {
+      color: var(--color-text-muted);
+    }
+
+    /* ========================================
+       SECTION: COMPONENTS - SECTIONS
+       Section-specific styles
+       ======================================== */
+    .section-center {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .section-center--narrow {
+      max-width: 600px;
+    }
+
+    .stats-grid {
+      display: flex;
+      gap: var(--space-lg);
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: var(--space-lg);
+    }
+
+    .stat-item__value {
+      font-family: var(--font-heading);
+      font-size: var(--font-size-h2);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+    }
+
+    .stat-item__label {
+      font-size: var(--font-size-small);
+      color: var(--color-text-muted);
+    }
+
+    .section-btn {
+      margin-top: var(--space-md);
+    }
+
+    /* ========================================
+       SECTION: COMPONENTS - MODAL
+       Modal dialog component
+       ======================================== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: var(--space-md);
+      opacity: 0;
+      transition: opacity var(--transition-normal);
+    }
+
+    .modal-overlay.is-open {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal {
+      background-color: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      max-width: 500px;
+      width: 100%;
+      box-shadow: var(--shadow-lg);
+      transform: scale(0.9);
+      transition: transform var(--transition-normal);
+    }
+
+    .modal-overlay.is-open .modal {
+      transform: scale(1);
+    }
+
+    .modal__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-md);
+    }
+
+    .modal__title {
+      font-size: var(--font-size-h3);
+    }
+
+    .modal__close {
+      width: 32px;
+      height: 32px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      transition: background-color var(--transition-fast);
+    }
+
+    .modal__close:hover {
+      background-color: var(--color-background);
+    }
+
+    .modal__body {
+      margin-bottom: var(--space-lg);
+      color: var(--color-text-muted);
+    }
+
+    .modal__text {
+      margin-bottom: var(--space-md);
+    }
+
+    .modal__actions {
+      display: flex;
+      gap: var(--space-sm);
+      justify-content: flex-end;
+    }
+
+    /* ========================================
+       SECTION: COMPONENTS - FOOTER
+       Page footer
+       ======================================== */
+    .footer {
+      background-color: var(--color-surface);
+      border-top: 1px solid var(--color-border);
+      padding: var(--space-md) 0;
+      min-height: 60px;
+    }
+
+    .footer__inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-sm);
+      text-align: center;
+    }
+
+    .footer__logo {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-family: var(--font-heading);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+    }
+
+    .footer__logo-icon {
+      width: 24px;
+      height: 24px;
+      background-color: var(--color-primary);
+      border-radius: var(--radius-sm);
+    }
+
+    .footer__links {
+      display: flex;
+      gap: var(--space-md);
+    }
+
+    .footer__link {
+      font-size: var(--font-size-small);
+      color: var(--color-text-muted);
+      transition: color var(--transition-fast);
+    }
+
+    .footer__link:hover {
+      color: var(--color-primary);
+    }
+
+    .footer__copyright {
+      font-size: var(--font-size-small);
+      color: var(--color-text-muted);
+    }
+
+    /* ========================================
+       SECTION: UTILITIES
+       Helper classes
+       ======================================== */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* ========================================
+       SECTION: ANIMATIONS
+       Keyframe animations
+       ======================================== */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-on-scroll {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity var(--transition-slow), transform var(--transition-slow);
+    }
+
+    .animate-on-scroll.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ========================================
+       SECTION: RESPONSIVE - TABLET
+       768px breakpoint
+       ======================================== */
+    @media (min-width: 768px) {
+      .navbar__nav {
+        display: flex;
+        position: static;
+        flex-direction: row;
+        align-items: center;
+        gap: var(--space-lg);
+        padding: 0;
+        box-shadow: none;
+      }
+
+      .navbar__links {
+        flex-direction: row;
+      }
+
+      .navbar__cta {
+        margin-top: 0;
+        margin-left: var(--space-sm);
+      }
+
+      .navbar__toggle {
+        display: none;
+      }
+
+      .cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .hero {
+        min-height: 400px;
+      }
+
+      .footer__inner {
+        flex-direction: row;
+        justify-content: space-between;
+        text-align: left;
+      }
+    }
+
+    /* ========================================
+       SECTION: RESPONSIVE - DESKTOP
+       1024px breakpoint
+       ======================================== */
+    @media (min-width: 1024px) {
+      .container {
+        padding: 0 var(--space-lg);
+      }
+
+      .cards-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .content-wrapper {
+        grid-template-columns: 1fr var(--sidebar-width);
+      }
+
+      .sidebar {
+        display: flex;
+      }
+
+      .hero {
+        min-height: 480px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Skip to content link for accessibility -->
+  <a href="#main" class="skip-link">Skip to content</a>
+
+  <!-- ========================================
+       NAVIGATION
+       Fixed top navbar with hamburger menu
+       ======================================== -->
+  <header class="navbar" role="banner">
+    <nav class="navbar__inner container" aria-label="Main navigation">
+      <a href="#" class="navbar__logo" aria-label="DecodeLabs home">
+        <span class="navbar__logo-icon" aria-hidden="true"></span>
+        <span>DecodeLabs</span>
+      </a>
+
+      <button 
+        class="navbar__toggle" 
+        aria-label="Toggle navigation menu" 
+        aria-expanded="false" 
+        aria-controls="main-nav"
+        id="nav-toggle"
+      >
+        <span class="navbar__hamburger" aria-hidden="true"></span>
+      </button>
+
+      <div class="navbar__nav" id="main-nav" role="navigation">
+        <ul class="navbar__links">
+          <li><a href="#home" class="navbar__link is-active" data-section="home">Home</a></li>
+          <li><a href="#features" class="navbar__link" data-section="features">Features</a></li>
+          <li><a href="#about" class="navbar__link" data-section="about">About</a></li>
+          <li><a href="#contact" class="navbar__link" data-section="contact">Contact</a></li>
+        </ul>
+        <div class="navbar__cta">
+          <button class="btn btn--primary js-modal-trigger">Get Started</button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ========================================
+       MAIN CONTENT
+       Page content with cards and sidebar
+       ======================================== -->
+  <main id="main">
+    <!-- Hero Section -->
+    <section class="hero" id="home" aria-labelledby="hero-title">
+      <div class="container">
+        <div class="hero__content animate-on-scroll">
+          <h1 id="hero-title" class="hero__title">
+            Build Something Extraordinary
+          </h1>
+          <p class="hero__subtitle">
+            Transform your ideas into reality with our cutting-edge platform. 
+            We provide the tools and insights you need to succeed in today's fast-paced digital landscape.
+          </p>
+          <div class="hero__actions">
+            <a href="#features" class="btn btn--primary">Explore Features</a>
+            <a href="#about" class="btn btn--outline">Learn More</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="main-content" id="features" aria-labelledby="features-title">
+      <div class="container">
+        <div class="content-wrapper">
+          <div class="cards-section">
+            <h2 id="features-title" class="sr-only">Features</h2>
+            <div class="cards-grid">
+              <!-- Card 1 -->
+              <article class="card animate-on-scroll" aria-labelledby="card-1-title">
+                <div class="card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                  </svg>
+                </div>
+                <h3 id="card-1-title" class="card__title">Lightning Fast</h3>
+                <p class="card__body">
+                  Experience blazing-fast performance with our optimized infrastructure. 
+                  Sub-second response times ensure your users never wait.
+                </p>
+              </article>
+
+              <!-- Card 2 -->
+              <article class="card animate-on-scroll" aria-labelledby="card-2-title">
+                <div class="card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                  </svg>
+                </div>
+                <h3 id="card-2-title" class="card__title">Secure by Design</h3>
+                <p class="card__body">
+                  Built with security at its core. Enterprise-grade encryption and 
+                  compliance with industry standards protect your data.
+                </p>
+              </article>
+
+              <!-- Card 3 -->
+              <article class="card animate-on-scroll" aria-labelledby="card-3-title">
+                <div class="card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/>
+                  </svg>
+                </div>
+                <h3 id="card-3-title" class="card__title">Cloud Native</h3>
+                <p class="card__body">
+                  Deploy anywhere with our cloud-agnostic architecture. Scale effortlessly 
+                  from prototype to production.
+                </p>
+              </article>
+
+              <!-- Card 4 -->
+              <article class="card animate-on-scroll" aria-labelledby="card-4-title">
+                <div class="card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 3v18m9-9H6"/>
+                  </svg>
+                </div>
+                <h3 id="card-4-title" class="card__title">Analytics Built-in</h3>
+                <p class="card__body">
+                  Gain valuable insights with real-time analytics. Monitor performance, 
+                  track user behavior, and optimize conversions.
+                </p>
+              </article>
+
+              <!-- Card 5 -->
+              <article class="card animate-on-scroll" aria-labelledby="card-5-title">
+                <div class="card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                  </svg>
+                </div>
+                <h3 id="card-5-title" class="card__title">Fully Customizable</h3>
+                <p class="card__body">
+                  Adapt every aspect to match your brand. From colors to layouts, 
+                  make it truly yours with our flexible system.
+                </p>
+              </article>
+
+              <!-- Card 6 -->
+              <article class="card animate-on-scroll" aria-labelledby="card-6-title">
+                <div class="card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17 20h5v-2a3 3 0 0 0-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 0 1 5.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 0 1 9.288 0M15 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm6 3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM7 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/>
+                  </svg>
+                </div>
+                <h3 id="card-6-title" class="card__title">Team Collaboration</h3>
+                <p class="card__body">
+                  Work together seamlessly with built-in collaboration tools. Share, 
+                  review, and iterate with your entire team in real-time.
+                </p>
+              </article>
+            </div>
+          </div>
+
+          <!-- Sidebar -->
+          <aside class="sidebar" aria-label="Supplementary content">
+            <!-- Widget 1: About -->
+            <div class="sidebar__widget animate-on-scroll">
+              <h3 class="sidebar__title">About Us</h3>
+              <p class="sidebar__text">
+                We are a team of passionate developers and designers dedicated to 
+                creating exceptional digital experiences that make a difference.
+              </p>
+              <button class="btn btn--secondary js-modal-trigger">Learn More</button>
+            </div>
+
+            <!-- Widget 2: Tabs Component -->
+            <div class="sidebar__widget animate-on-scroll">
+              <h3 class="sidebar__title">Quick Links</h3>
+              
+              <div class="tabs" role="tablist" aria-label="Quick links tabs">
+                <nav class="tabs__nav" role="tablist" aria-label="Tab navigation">
+                  <button 
+                    class="tabs__btn is-active" 
+                    role="tab" 
+                    aria-selected="true" 
+                    aria-controls="tab-docs"
+                    data-tab="docs"
+                  >
+                    Docs
+                  </button>
+                  <button 
+                    class="tabs__btn" 
+                    role="tab" 
+                    aria-selected="false" 
+                    aria-controls="tab-api"
+                    data-tab="api"
+                  >
+                    API
+                  </button>
+                  <button 
+                    class="tabs__btn" 
+                    role="tab" 
+                    aria-selected="false" 
+                    aria-controls="tab-support"
+                    data-tab="support"
+                  >
+                    Support
+                  </button>
+                </nav>
+
+                <div id="tab-docs" class="tabs__content is-active" role="tabpanel" aria-labelledby="tab-docs">
+                  <p>Access our comprehensive documentation to get started quickly.</p>
+                </div>
+
+                <div id="tab-api" class="tabs__content" role="tabpanel" aria-labelledby="tab-api" hidden>
+                  <p>Explore our RESTful API designed for seamless integration.</p>
+                </div>
+
+                <div id="tab-support" class="tabs__content" role="tabpanel" aria-labelledby="tab-support" hidden>
+                  <p>Get help from our dedicated support team available 24/7.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Widget 3: Accordion Component -->
+            <div class="sidebar__widget animate-on-scroll">
+              <h3 class="sidebar__title">FAQ</h3>
+              
+              <div class="accordion" role="region" aria-label="Frequently asked questions">
+                <div class="accordion__item">
+                  <button 
+                    class="accordion__btn" 
+                    aria-expanded="false" 
+                    aria-controls="accordion-1-content"
+                    id="accordion-1-btn"
+                  >
+                    <span>How do I get started?</span>
+                    <svg class="accordion__icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                    </svg>
+                  </button>
+                  <div 
+                    class="accordion__body" 
+                    id="accordion-1-content" 
+                    role="region" 
+                    aria-labelledby="accordion-1-btn"
+                  >
+                    <div class="accordion__content">
+                      Simply sign up for a free account and follow our quick-start guide. 
+                      You'll be up and running in minutes.
+                    </div>
+                  </div>
+                </div>
+
+                <div class="accordion__item">
+                  <button 
+                    class="accordion__btn" 
+                    aria-expanded="false" 
+                    aria-controls="accordion-2-content"
+                    id="accordion-2-btn"
+                  >
+                    <span>Is there a free trial?</span>
+                    <svg class="accordion__icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                    </svg>
+                  </button>
+                  <div 
+                    class="accordion__body" 
+                    id="accordion-2-content" 
+                    role="region" 
+                    aria-labelledby="accordion-2-btn"
+                  >
+                    <div class="accordion__content">
+                      Yes! We offer a 14-day free trial with full access to all features. 
+                      No credit card required.
+                    </div>
+                  </div>
+                </div>
+
+                <div class="accordion__item">
+                  <button 
+                    class="accordion__btn" 
+                    aria-expanded="false" 
+                    aria-controls="accordion-3-content"
+                    id="accordion-3-btn"
+                  >
+                    <span>Can I cancel anytime?</span>
+                    <svg class="accordion__icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                    </svg>
+                  </button>
+                  <div 
+                    class="accordion__body" 
+                    id="accordion-3-content" 
+                    role="region" 
+                    aria-labelledby="accordion-3-btn"
+                  >
+                    <div class="accordion__content">
+                      Absolutely. Cancel anytime with no hidden fees or penalties. 
+                      We believe in keeping things simple.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="main-content" id="about" aria-labelledby="about-title">
+      <div class="container">
+        <div class="section-center animate-on-scroll">
+          <h2 id="about-title" class="hero__title">About DecodeLabs</h2>
+          <p class="hero__subtitle">
+            Founded in 2020, DecodeLabs has been at the forefront of innovation in digital solutions. 
+            Our mission is to empower businesses and individuals with technology that makes a difference.
+          </p>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <strong class="stat-item__value">100+</strong>
+              <p class="stat-item__label">Projects Delivered</p>
+            </div>
+            <div class="stat-item">
+              <strong class="stat-item__value">50+</strong>
+              <p class="stat-item__label">Happy Clients</p>
+            </div>
+            <div class="stat-item">
+              <strong class="stat-item__value">24/7</strong>
+              <p class="stat-item__label">Support Available</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="main-content" id="contact" aria-labelledby="contact-title">
+      <div class="container">
+        <div class="section-center section-center--narrow animate-on-scroll">
+          <h2 id="contact-title" class="hero__title">Get in Touch</h2>
+          <p class="hero__subtitle">
+            Have questions or want to start a project? We'd love to hear from you. 
+            Reach out and our team will get back to you within 24 hours.
+          </p>
+          <button class="btn btn--primary section-btn">Contact Us</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========================================
+       FOOTER
+       Page footer with links
+       ======================================== -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer__inner">
+        <a href="#" class="footer__logo" aria-label="DecodeLabs home">
+          <span class="footer__logo-icon" aria-hidden="true"></span>
+          <span>DecodeLabs</span>
+        </a>
+        
+        <nav class="footer__links" aria-label="Footer navigation">
+          <a href="#home" class="footer__link">Home</a>
+          <a href="#features" class="footer__link">Features</a>
+          <a href="#about" class="footer__link">About</a>
+          <a href="#contact" class="footer__link">Contact</a>
+        </nav>
+        
+        <p class="footer__copyright">
+          &copy; 2025 DecodeLabs. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================
+       MODAL
+       Dialog modal component
+       ======================================== -->
+  <div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <div class="modal__header">
+        <h3 class="modal__title" id="modal-title">Welcome!</h3>
+        <button class="modal__close" aria-label="Close modal" id="modal-close-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal__body">
+        <p class="modal__text">Thanks for your interest in DecodeLabs! Fill out the form below and we'll be in touch shortly.</p>
+        <form id="modal-form">
+          <div class="form-group">
+            <label for="modal-name" class="form-label">Name</label>
+            <input type="text" id="modal-name" class="form-input" placeholder="Your full name" required aria-required="true">
+          </div>
+          <div class="form-group">
+            <label for="modal-email" class="form-label">Email</label>
+            <input type="email" id="modal-email" class="form-input" placeholder="you@example.com" required aria-required="true">
+          </div>
+          <div class="form-group">
+            <label for="modal-message" class="form-label">Message</label>
+            <input type="text" id="modal-message" class="form-input" placeholder="Tell us about your project">
+          </div>
+        </form>
+      </div>
+      <div class="modal__actions">
+        <button class="btn btn--outline" id="modal-cancel-btn">Cancel</button>
+        <button class="btn btn--primary" id="modal-submit-btn">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================
+       JAVASCRIPT
+       Interactive functionality
+       ======================================== -->
+  <script>
+    (function() {
+      'use strict';
+
+      // ========================================
+      // Mobile Navigation Toggle
+      // ========================================
+      const navToggle = document.getElementById('nav-toggle');
+      const mainNav = document.getElementById('main-nav');
+
+      navToggle.addEventListener('click', function() {
+        const isOpen = mainNav.classList.toggle('is-open');
+        this.setAttribute('aria-expanded', isOpen);
+      });
+
+      // Close mobile nav when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!mainNav.contains(e.target) && !navToggle.contains(e.target)) {
+          mainNav.classList.remove('is-open');
+          navToggle.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      // ========================================
+      // Smooth Scroll for Anchor Links
+      // ========================================
+      document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+        anchor.addEventListener('click', function(e) {
+          const href = this.getAttribute('href');
+          if (href === '#') return;
+
+          const target = document.querySelector(href);
+          if (target) {
+            e.preventDefault();
+            const navHeight = document.querySelector('.navbar').offsetHeight;
+            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navHeight;
+
+            window.scrollTo({
+              top: targetPosition,
+              behavior: 'smooth'
+            });
+
+            // Close mobile nav after clicking a link
+            mainNav.classList.remove('is-open');
+            navToggle.setAttribute('aria-expanded', 'false');
+          }
+        });
+      });
+
+      // ========================================
+      // Active Nav Link on Scroll
+      // ========================================
+      const sections = document.querySelectorAll('section[id]');
+      const navLinks = document.querySelectorAll('.navbar__link');
+
+      function updateActiveNav() {
+        const scrollY = window.scrollY;
+
+        sections.forEach(function(section) {
+          const sectionTop = section.offsetTop - 100;
+          const sectionHeight = section.offsetHeight;
+          const sectionId = section.getAttribute('id');
+
+          if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
+            navLinks.forEach(function(link) {
+              link.classList.remove('is-active');
+              if (link.getAttribute('data-section') === sectionId) {
+                link.classList.add('is-active');
+              }
+            });
+          }
+        });
+      }
+
+      window.addEventListener('scroll', updateActiveNav);
+
+      // ========================================
+      // Tab Switcher Component
+      // ========================================
+      const tabButtons = document.querySelectorAll('.tabs__btn');
+      const tabContents = document.querySelectorAll('.tabs__content');
+
+      tabButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+          const targetTab = this.getAttribute('data-tab');
+
+          // Update button states
+          tabButtons.forEach(function(btn) {
+            btn.classList.remove('is-active');
+            btn.setAttribute('aria-selected', 'false');
+          });
+          this.classList.add('is-active');
+          this.setAttribute('aria-selected', 'true');
+
+          // Update content visibility
+          tabContents.forEach(function(content) {
+            content.classList.remove('is-active');
+            content.hidden = true;
+          });
+
+          const targetContent = document.getElementById('tab-' + targetTab);
+          if (targetContent) {
+            targetContent.classList.add('is-active');
+            targetContent.hidden = false;
+          }
+        });
+      });
+
+      // ========================================
+      // Accordion Component
+      // ========================================
+      const accordionItems = document.querySelectorAll('.accordion__item');
+
+      accordionItems.forEach(function(item) {
+        const button = item.querySelector('.accordion__btn');
+        
+        button.addEventListener('click', function() {
+          const isOpen = item.classList.toggle('is-open');
+          this.setAttribute('aria-expanded', isOpen);
+        });
+      });
+
+      // ========================================
+      // Modal Component
+      // ========================================
+      const modalOverlay = document.getElementById('modal-overlay');
+      const modalCloseBtn = document.getElementById('modal-close-btn');
+      const modalCancelBtn = document.getElementById('modal-cancel-btn');
+      const modalSubmitBtn = document.getElementById('modal-submit-btn');
+      const modalForm = document.getElementById('modal-form');
+      const modalTriggerBtns = document.querySelectorAll('.js-modal-trigger');
+
+      function openModal() {
+        modalOverlay.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+        const firstInput = modalForm.querySelector('input');
+        if (firstInput) firstInput.focus();
+      }
+
+      function closeModal() {
+        modalOverlay.classList.remove('is-open');
+        document.body.style.overflow = '';
+      }
+
+      modalTriggerBtns.forEach(function(btn) {
+        btn.addEventListener('click', openModal);
+      });
+
+      modalCloseBtn.addEventListener('click', closeModal);
+      modalCancelBtn.addEventListener('click', closeModal);
+
+      modalSubmitBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const formData = new FormData(modalForm);
+        const name = formData.get('name') || 'there';
+        alert('Thanks, ' + name + '! We\'ll be in touch soon.');
+        closeModal();
+        modalForm.reset();
+      });
+
+      // Close modal on overlay click
+      modalOverlay.addEventListener('click', function(e) {
+        if (e.target === modalOverlay) {
+          closeModal();
+        }
+      });
+
+      // Close modal on Escape key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modalOverlay.classList.contains('is-open')) {
+          closeModal();
+        }
+      });
+
+      // ========================================
+      // Scroll Animation Observer
+      // ========================================
+      const animatedElements = document.querySelectorAll('.animate-on-scroll');
+
+      if ('IntersectionObserver' in window) {
+        const animationObserver = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              animationObserver.unobserve(entry.target);
+            }
+          });
+        }, {
+          threshold: 0.1,
+          rootMargin: '0px 0px -50px 0px'
+        });
+
+        animatedElements.forEach(function(el) {
+          animationObserver.observe(el);
+        });
+      } else {
+        // Fallback for browsers without IntersectionObserver
+        animatedElements.forEach(function(el) {
+          el.classList.add('is-visible');
+        });
+      }
+
+    })();
+  </script>
+</body>
+</html>
